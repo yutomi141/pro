@@ -29,7 +29,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
         {/* Product Image */}
         <div className="relative aspect-square">
           <Image
-            src={product.imageUrl || '/placeholder.svg'}
+            src={product.images.split(',')[0] || '/placeholder.svg'}
             alt={product.name}
             fill
             className="object-cover rounded-lg shadow-lg"
@@ -47,7 +47,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
           <div className="mt-6">
             <h3 className="sr-only">Description</h3>
             <div className="space-y-6 text-base text-muted-foreground">
-              <p>{product.description}</p>
+              <p>{product.descriptionLong}</p>
             </div>
           </div>
 

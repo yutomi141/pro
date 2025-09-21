@@ -16,7 +16,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     <Link href={`/products/${product.slug}`} className="group">
       <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-800 xl:aspect-w-7 xl:aspect-h-8">
         <Image
-          src={product.imageUrl || '/placeholder.svg'} // Fallback placeholder
+          src={product.images.split(',')[0] || '/placeholder.svg'} // Fallback placeholder
           alt={product.name}
           width={400}
           height={400}
