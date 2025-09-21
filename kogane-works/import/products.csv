@@ -1,0 +1,2 @@
+name,slug,price,salePrice,sku,stock,material,finish,width,depth,height,weight,tags,images,descriptionShort,descriptionLong,engravingEnabled,engravingMaxLen
+"Sample Product Name","sample-product-slug",9999,7999,"SKU-001",100,"Material Type","Finish Type",100,100,100,500,"tag1,tag2,tag3","/images/products/sample1.jpg,/images/products/sample2.jpg","A short, catchy description of the product.","A much more detailed description of the product, covering its features, benefits, and materials.",true,20

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Sample Product Name",
+    "slug": "sample-product-slug",
+    "price": 9999,
+    "salePrice": 7999,
+    "sku": "SKU-001",
+    "stock": 100,
+    "material": "Material Type",
+    "finish": "Finish Type",
+    "width": 100,
+    "depth": 100,
+    "height": 100,
+    "weight": 500,
+    "tags": "tag1,tag2,tag3",
+    "images": "/images/products/sample1.jpg,/images/products/sample2.jpg",
+    "descriptionShort": "A short, catchy description of the product.",
+    "descriptionLong": "A much more detailed description of the product, covering its features, benefits, and materials.",
+    "engravingEnabled": true,
+    "engravingMaxLen": 20
+  }
+]

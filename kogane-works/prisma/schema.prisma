@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ENUMS
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+  FREE_SHIPPING
+}
+
+// AUTHENTICATION (NextAuth.js)
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole  @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  customerId    String?   @unique
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// E-COMMERCE CORE
+
+model Customer {
+  id          String    @id @default(cuid())
+  name        String?
+  email       String    @unique
+  phone       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User?
+  orders      Order[]
+  addresses   Address[]
+}
+
+model Address {
+  id           String    @id @default(cuid())
+  street       String
+  city         String
+  state        String // Prefecture
+  zipCode      String
+  country      String    @default("Japan")
+  isDefault    Boolean   @default(false)
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  customerId   String?
+}
+
+model Product {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  descriptionShort  String?
+  descriptionLong   String
+  price             Int // Store price in cents
+  salePrice         Int?
+  sku               String?  @unique
+  stock             Int      @default(0)
+  images            String // Comma-separated list of image URLs
+  tags              String // Comma-separated list of tags
+  material          String?
+  finish            String?
+  dimensions        String? // e.g., "120x60x10mm"
+  weight            Float?   // in grams
+  careNotes         String?
+  engravingEnabled  Boolean  @default(false)
+  engravingMaxLen   Int?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  variants OrderItem[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique @default(cuid()) // Simple unique order number
+  status          OrderStatus @default(PENDING)
+  total           Int // In cents
+  subtotal        Int // In cents
+  shippingCost    Int // In cents
+  tax             Int // In cents
+  discountAmount  Int         @default(0) // In cents
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  items           OrderItem[]
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  userId String?
+  user   User?     @relation(fields: [userId], references: [id])
+
+  shippingAddress String // JSON string of the address
+  billingAddress  String? // JSON string of the address
+
+  couponId String?
+  coupon   Coupon? @relation(fields: [couponId], references: [id])
+
+  giftWrap         Boolean @default(false)
+  giftWrapCost     Int?    // In cents
+  customerNotes    String?
+  stripePaymentIntentId String? @unique
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  quantity  Int
+  price     Int // Price per unit at time of purchase, in cents
+
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  engravingText String?
+
+  @@unique([orderId, productId])
+}
+
+model Coupon {
+  id          String     @id @default(cuid())
+  code        String     @unique
+  type        CouponType
+  value       Float // Percentage or fixed amount
+  expiresAt   DateTime?
+  minPurchase Int? // In cents
+  isActive    Boolean    @default(true)
+  usageLimit  Int?       @default(1)
+  timesUsed   Int        @default(0)
+  orders      Order[]
+}
